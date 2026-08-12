@@ -1,0 +1,7 @@
+playwright
+google-genai
+requests
+python-dotenv
+python-telegram-bot
+twikit
+deep-translator
