@@ -41,11 +41,9 @@ COOKIES_PATH = os.getenv("COOKIES_PATH", "cookies.json")
 # A random mood is injected into every prompt to make the pattern unpredictable.
 REPLY_MOODS = [
     "MOOD: Be funny. Drop a one-liner that makes people exhale through their nose. Wit over wisdom.",
-    "MOOD: Be spicy. Light disagreement or a hot take. Confident, borderline provocative, but not hostile.",
     "MOOD: Be cryptic. Leave a breadcrumb. Say something that makes them think for 3 seconds.",
     "MOOD: Be absurdly casual. Reply like you're texting a friend at 2am. Lowercase energy.",
     "MOOD: Be deadpan observational. Point out something obvious nobody is saying. Dry humor.",
-    "MOOD: Be contrarian. Flip their perspective. Not rude, but unexpected.",
     "MOOD: Be the mysterious insider. Imply you know something. Don't explain what.",
     "MOOD: Be unreasonably brief. 3-8 words max. Like a fortune cookie with attitude.",
     "MOOD: Be reasoned. Make an actual smart point that adds to the conversation. No fluff.",
@@ -123,7 +121,7 @@ SYSTEM_PROMPT_BASE = (
     "- Use three-item lists\n"
     "- Sound like AI\n\n"
     "BANNED WORDS: navigate, unpack, lean into, landscape, game-changer, "
-    "double down, deep dive.\n\n"
+    "double down, hate, deep dive.\n\n"
 
     "{mood}\n\n"
 
