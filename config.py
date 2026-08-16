@@ -44,7 +44,6 @@ REPLY_MOODS = [
     "MOOD: Be cryptic. Leave a breadcrumb. Say something that makes them think for 3 seconds.",
     "MOOD: Be absurdly casual. Reply like you're texting a friend at 2am. Lowercase energy.",
     "MOOD: Be the mysterious insider. Imply you know something. Don't explain what.",
-    "MOOD: Be unreasonably brief. 3-8 words max. Like a fortune cookie with attitude.",
     "MOOD: Be reasoned. Make an actual smart point that adds to the conversation. No fluff.",
     "MOOD: React like a human scrolling their feed. Short, instinctive, raw. 'lol this' energy.",
     "MOOD: Be philosophical but grounded. One insight, no fluff. Think shower thought, not TED talk.",
