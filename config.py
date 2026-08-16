@@ -41,12 +41,9 @@ COOKIES_PATH = os.getenv("COOKIES_PATH", "cookies.json")
 # A random mood is injected into every prompt to make the pattern unpredictable.
 REPLY_MOODS = [
     "MOOD: Be funny. Drop a one-liner that makes people exhale through their nose. Wit over wisdom.",
-    "MOOD: Be cryptic. Leave a breadcrumb. Say something that makes them think for 3 seconds.",
     "MOOD: Be absurdly casual. Reply like you're texting a friend at 2am. Lowercase energy.",
-    "MOOD: Be the mysterious insider. Imply you know something. Don't explain what.",
     "MOOD: Be reasoned. Make an actual smart point that adds to the conversation. No fluff.",
     "MOOD: React like a human scrolling their feed. Short, instinctive, raw. 'lol this' energy.",
-    "MOOD: Be philosophical but grounded. One insight, no fluff. Think shower thought, not TED talk.",
 ]
 
 # ── Persona / Identity (configurable) ──────────────────────────────────────────
