@@ -7,10 +7,11 @@ Put this file in /root/banzaan-agent (next to hark_bridge.py). Needs in .env:
   GEMINI_API_KEY=...            (aistudio.google.com)
   TELEGRAM_BOT_TOKEN=123456:ABC...   (from @BotFather)
   TELEGRAM_CHAT_ID=123456789          (your own chat id)
-Optional: GEMINI_MODEL (default gemini-3.8-flash), RUN_EVERY_MIN (default 120), MAX_PER_RUN (default 10)
+Optional: GEMINI_MODEL (default gemini-3.8-flash), GEMINI_EMBED_MODEL, RUN_EVERY_MIN (default 120), MAX_PER_RUN (default 10), BATCH_SIZE, MIN_MEME_SCORE (default 5)
+Needs meme_kb.json next to this file (built by build_kb.py). Meme flow: quote+joke idea -> top 6 templates by meaning (Gemini embeddings) -> 3 drafts -> judge picks best.
 Test once:  python3 gemini_worker.py --once
 """
-import json, os, random, re, sys, time, urllib.parse, urllib.request
+import hashlib, json, math, os, random, re, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import date, datetime
 from dotenv import load_dotenv
 
@@ -27,11 +28,17 @@ BRIDGE_KEY = os.getenv("HARK_API_KEY", "")
 BRIDGE = f"http://127.0.0.1:{os.getenv('HARK_BRIDGE_PORT', '8787')}"
 EVERY = int(os.getenv("RUN_EVERY_MIN", "120")) * 60
 MAX_PER_RUN = int(os.getenv("MAX_PER_RUN", "10"))
+BATCH = int(os.getenv("BATCH_SIZE", "3"))  # posts per Gemini call (smaller = better quotes)
+RECENT_N = int(os.getenv("RECENT_MEMES", "30"))
+EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
+MIN_SCORE = float(os.getenv("MIN_MEME_SCORE", "5"))  # judge average 1-10; below this the quote goes without a meme
+KB = json.load(open(os.path.join(P, "meme_kb.json"), encoding="utf-8"))
+KB_EMB = os.path.join(P, "meme_kb_emb.json")
 FALLBACK_MODELS = [m.strip() for m in os.getenv("GEMINI_FALLBACKS", "gemini-2.5-flash,gemini-2.5-flash-lite").split(",") if m.strip()]
 
 STYLE = "VOICE: a real human SI researcher on X, not a brand, not a bot. Simple English (top 500 words). This is a QUOTE post, not a reply: it must bring something the original post does not say.\nSTANDALONE TEST: if nobody saw the original post, the quote must still make sense and say something worth reading. A pure reaction (lol, wild, this is big, finally) fails.\nADD ONE NEW THING: the next step the author did not reach, a clear reason to disagree, a number or fact that sharpens the claim, what this changes for normal people or builders, or a concrete example. Use only facts you are sure of; never invent numbers.\nRULES: no emojis, no periods, no commas, no quotes, no em dashes, no hashtags. Lowercase except names (OpenAI, GPT, Claude, Google) and I. Use line breaks between thoughts.\nNEVER: compliments (great post, love this, so true), throat-clearing (here's the thing, the truth is), let that sink in, full stop, at the end of the day, when it comes to, not X it's Y, three-item lists, adverbs (really just literally honestly actually genuinely simply), starting with What/When/Where/Which/Who/Why/How/So, words navigate unpack landscape game-changer deep dive double down.\nVARY: each quote follows its own ANGLE and SHAPE below. Two quotes in one batch must never look alike in length or line layout.\n\nTERM: never write AI (or ai, A.I.) in the quote or the meme lines. Always write SI instead, uppercase (SI agents, SI race, open SI). Names like OpenAI and xAI stay as they are."
 TEMPLATES = "drake: Drakeposting | 2 lines\ndb: Distracted Boyfriend | 3 lines\ngru: Gru's Plan | 4 lines\nfine: This is Fine | 2 lines\ncmm: Change My Mind | 1 lines\nds: Daily Struggle | 3 lines\ngb: Galaxy Brain | 4 lines\nstonks: Stonks | 2 lines\npanik-kalm-panik: Panik Kalm Panik | 3 lines\nnoidea: I Have No Idea What I'm Doing | 2 lines\nrollsafe: Roll Safe | 2 lines\nwonka: Condescending Wonka | 2 lines\nspiderman: Spider-Man Pointing at Spider-Man | 2 lines\npigeon: Is This a Pigeon? | 3 lines\nwoman-cat: Woman Yelling at a Cat | 2 lines\nhandshake: Epic Handshake | 3 lines\nmidwit: Midwit | 3 lines\nbuzz: X, X Everywhere | 2 lines\nboth: Why Not Both? | 2 lines\nchosen: You Were the Chosen One! | 2 lines\ndisastergirl: Disaster Girl | 2 lines\nharold: Hide the Pain Harold | 2 lines\nsuccess: Success Kid | 2 lines\nfry: Futurama Fry | 2 lines\ngandalf: Confused Gandalf | 2 lines\nmorpheus: Matrix Morpheus | 2 lines\ndoge: Doge | 2 lines\ncheems: Cheems | 2 lines\npooh: Tuxedo Winnie the Pooh | 2 lines\nexit: Left Exit 12 Off Ramp | 3 lines\ndrowning: Drowning High Five | 3 lines\nastronaut: Always Has Been | 4 lines\nright: Anakin and Padme Change the World For the Better | 5 lines\nreveal: Scooby Doo Reveal | 4 lines\nmordor: One Does Not Simply Walk into Mordor | 2 lines\nyodawg: Xzibit Yo Dawg | 2 lines\nafraid: Afraid to Ask Andy | 2 lines\nbad: You Should Feel Bad | 2 lines\nelmo: Elmo Choosing Cocaine | 5 lines\nkermit: But That's None of My Business | 2 lines\nmichael-scott: Michael Scott No God No | 2 lines\ndwight: Schrute Facts | 2 lines\nofficespace: That Would Be Great | 2 lines\ninteresting: The Most Interesting Man in the World | 2 lines\nleo: Leo Strutting | 2 lines\njw: Probably Not a Good Idea | 2 lines\nsame: They're The Same Picture | 3 lines\nbox: What's in the box!? | 2 lines\nolder: An Older Code Sir, But It Checks Out | 2 lines\nsadfrog: Feels Bad Man | 2 lines\nfacepalm: Facepalm | 2 lines\ngrave: Grant Gustin Next To Oliver Queen's Grave | 3 lines\nheadaches: Types of Headaches | 1 lines\nballoon: Running Away Balloon | 3 lines\nphilosoraptor: Philosoraptor | 2 lines\nslap: Will Smith Slapping Chris Rock | 2 lines\ntenguy: 10 Guy | 2 lines\nseagull: Inhaling Seagull | 2 lines\nkhaby-lame: Khaby Lame Shrug | 2 lines\nants: Do You Want Ants? | 2 lines\nscc: Sudden Clarity Clarence | 2 lines"
-LINES = {"drake": 2, "db": 3, "gru": 4, "fine": 2, "cmm": 1, "ds": 3, "gb": 4, "stonks": 2, "panik-kalm-panik": 3, "noidea": 2, "rollsafe": 2, "wonka": 2, "spiderman": 2, "pigeon": 3, "woman-cat": 2, "handshake": 3, "midwit": 3, "buzz": 2, "both": 2, "chosen": 2, "disastergirl": 2, "harold": 2, "success": 2, "fry": 2, "gandalf": 2, "morpheus": 2, "doge": 2, "cheems": 2, "pooh": 2, "exit": 3, "drowning": 3, "astronaut": 4, "right": 5, "reveal": 4, "mordor": 2, "yodawg": 2, "afraid": 2, "bad": 2, "elmo": 5, "kermit": 2, "michael-scott": 2, "dwight": 2, "officespace": 2, "interesting": 2, "leo": 2, "jw": 2, "same": 3, "box": 2, "older": 2, "sadfrog": 2, "facepalm": 2, "grave": 3, "headaches": 1, "balloon": 3, "philosoraptor": 2, "slap": 2, "tenguy": 2, "seagull": 2, "khaby-lame": 2, "ants": 2, "scc": 2}
+LINES = {c["id"]: len(c["example"]) for c in KB}
 MOODS = [
     "extend: the post is right, add the next layer or consequence the author did not reach",
     "push back: disagree on a clear ground and say why",
@@ -48,7 +55,17 @@ SHAPES = [
     "three short lines of different length, no blank lines, 20 to 35 words",
     "a claim line then a blank line then a sharp question line, 15 to 30 words",
 ]
-FALLBACK = ["drake", "rollsafe", "stonks", "fine", "pooh", "success"]
+NAME2ID = {}
+for _l in TEMPLATES.splitlines():
+    _id, _rest = _l.split(":", 1)
+    NAME2ID[_rest.split("|")[0].strip().lower()] = _id.strip()
+
+
+def norm_template(t):
+    t = (t or "").strip().lower()
+    if t in LINES:
+        return t
+    return NAME2ID.get(t) or NAME2ID.get(t.replace("-", " ")) or ""
 
 # ---- filter (same rules as filter.py in Hark) ----
 JUNK = re.compile(r"\b(promo|nft|mint(ing)?|airdrop|giveaway|points? (are )?live|whitelist|presale|token sale|"
@@ -86,26 +103,36 @@ def pop():
 
 
 def recent_memes():
+    """template ids used in the last RECENT_N memes"""
     try:
-        return open(USED, encoding="utf-8").read().splitlines()[-30:]
+        rows = open(USED, encoding="utf-8").read().splitlines()[-RECENT_N:]
+    except FileNotFoundError:
+        return []
+    return [r.split("|")[1].strip() for r in rows if r.count("|") >= 2]
+
+
+def recent_quotes(n=6):
+    try:
+        rows = open(HISTORY, encoding="utf-8").read().splitlines()[-n:]
+        return [json.loads(r).get("quote", "") for r in rows if r.strip()]
     except FileNotFoundError:
         return []
 
 
-def ask_gemini(posts):
-    shapes = random.sample(SHAPES, len(SHAPES)) * 3
-    parts = [STYLE, ""]
-    for i, p in enumerate(posts):
-        parts.append(f"--- POST {i+1}\nurl: {p['url']}\nauthor: {p.get('author','')}\n"
-                     f"ANGLE: {random.choice(MOODS)}\nSHAPE: {shapes[i]}\ntext: {(p.get('text') or '')[:600]}\n")
-    parts.append("--- TEMPLATES (id: name | panels). MEME RULE: give lines as a list with exactly that many texts, one per panel, none empty\n" + TEMPLATES)
-    parts.append("--- RECENT MEMES (do not reuse these templates)\n" + "\n".join(recent_memes()))
-    parts.append("--- OUTPUT: a JSON array, one object per post you quote: "
-                 '{"url": same url, "quote": text with real line breaks, "topic": 3 to 6 words, '
-                 '"template": template id, "lines": [panel texts]}. Use a different template for every post. '
-                 "Leave out a post only if it has nothing worth adding (pure promo, empty, not about SI).")
-    body = {"contents": [{"parts": [{"text": "\n".join(parts)}]}],
-            "generationConfig": {"responseMimeType": "application/json", "temperature": 1.0}}
+def pick_template(wanted, n_lines, banned):
+    """use Gemini's template if valid and fresh, else a random fresh one (same panel count preferred)"""
+    t = norm_template(wanted)
+    if t and t not in banned:
+        return t
+    free = [k for k in LINES if k not in banned] or list(LINES)
+    same = [k for k in free if LINES[k] == n_lines]
+    return random.choice(same or free)
+
+
+# ---------- Gemini helpers ----------
+def gemini_json(prompt, temperature=1.0):
+    body = {"contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"responseMimeType": "application/json", "temperature": temperature}}
     models = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
     for model in models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
@@ -116,19 +143,160 @@ def ask_gemini(posts):
                 with urllib.request.urlopen(req, timeout=180) as r:
                     out = json.load(r)
                 text = out["candidates"][0]["content"]["parts"][0]["text"]
-                if model != MODEL:
-                    log("used fallback model", model)
+                log("model", model)
                 return json.loads(text)
             except urllib.error.HTTPError as e:
                 log("gemini error", model, e.code, e.read()[:200])
-                if e.code == 429 or e.code == 404:
-                    break  # quota or unknown model: go to next model
+                if e.code in (429, 404):
+                    break
                 if e.code not in (500, 503):
-                    return []
+                    return None
             except Exception as e:
                 log("gemini error", model, e)
-            time.sleep(60 * (attempt + 1))
-    return []
+            time.sleep(30 * (attempt + 1))
+    return None
+
+
+def embed(texts):
+    """Gemini embeddings (free). returns list of vectors or None"""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{EMBED_MODEL}:batchEmbedContents"
+    reqs = [{"model": f"models/{EMBED_MODEL}", "content": {"parts": [{"text": t}]}} for t in texts]
+    try:
+        req = urllib.request.Request(url, data=json.dumps({"requests": reqs}).encode(), method="POST",
+                                     headers={"Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return [e["values"] for e in json.load(r)["embeddings"]]
+    except Exception as e:
+        log("embed error", e)
+        return None
+
+
+def card_text(c):
+    return f"{c['name']}. dynamic: {c['dynamic']}. {c['meaning']}. use when {c['use_when']}"
+
+
+def kb_vectors():
+    sig = hashlib.md5((EMBED_MODEL + json.dumps(KB)).encode()).hexdigest()
+    try:
+        d = json.load(open(KB_EMB))
+        if d.get("sig") == sig:
+            return d["vecs"]
+    except Exception:
+        pass
+    vecs = {}
+    for i in range(0, len(KB), 50):
+        part = KB[i:i + 50]
+        v = embed([card_text(c) for c in part])
+        if not v:
+            return None
+        vecs.update({c["id"]: x for c, x in zip(part, v)})
+    json.dump({"sig": sig, "vecs": vecs}, open(KB_EMB, "w"))
+    return vecs
+
+
+def cos(a, b):
+    num = sum(x * y for x, y in zip(a, b))
+    den = math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b))
+    return num / den if den else 0
+
+
+def candidates(idea, banned, k=6):
+    """top-k fresh templates whose meaning fits the joke idea"""
+    free = [c for c in KB if c["id"] not in banned] or KB
+    vecs = kb_vectors()
+    q = embed([idea]) if vecs else None
+    if q:
+        free.sort(key=lambda c: -cos(q[0], vecs.get(c["id"], [0])))
+        top = free[:k]
+    else:  # no embeddings: let the model see every fresh card (short)
+        top = free
+    return top
+
+
+# ---------- stage 1: quote + joke idea ----------
+def ask_quotes(posts):
+    shapes = random.sample(SHAPES, len(SHAPES)) * 3
+    parts = [STYLE, ""]
+    for i, p in enumerate(posts):
+        parts.append(f"--- POST {i+1}\nurl: {p['url']}\nauthor: {p.get('author','')}\n"
+                     f"ANGLE: {random.choice(MOODS)}\nSHAPE: {shapes[i]}\ntext: {(p.get('text') or '')[:600]}\n")
+    rq = [q for q in recent_quotes() if q]
+    if rq:
+        parts.append("--- YOUR LAST QUOTES (do not repeat their openings, words or layout)\n" + "\n---\n".join(rq))
+    parts.append(
+        "--- ALSO, for each post find the MEME IDEA, like a meme page admin would:\n"
+        "core: the one point of the post+quote in under 15 words\n"
+        "dynamic: the comic structure hiding in it, one of: preference, temptation, plan backfires, denial in chaos, bold claim, "
+        "hard choice, escalating ideas, naive win, twist, incompetence, bad clever logic, sarcasm, same thing, misidentification, "
+        "argument, common ground, bell curve, flood, betrayal, hidden pain, small win, suspicion, confusion, reveal, recursion, "
+        "fancy rename, unmasking, hard task, warning, consequences, epiphany, obvious solution, correction, blocked goal\n"
+        "joke: one sentence saying what is funny or ironic about it for SI people (the gap between hype and reality, who wins, who suffers)\n"
+        "--- OUTPUT: a JSON array, one object per post you quote: "
+        '{"url": same url, "quote": text with real line breaks, "topic": 3 to 6 words, "core": "...", "dynamic": "...", "joke": "..."}. '
+        "Leave out a post only if it has nothing worth adding (pure promo, empty, not about SI).")
+    r = gemini_json("\n".join(parts), 1.0)
+    return r if isinstance(r, list) else []
+
+
+# ---------- stage 2: write meme drafts on the best fitting templates ----------
+def card_full(c):
+    roles = c["roles"]
+    ex = " | ".join(c["example"])
+    return (f"id: {c['id']} | {c['name']} | panels: {len(c['example'])}\n  meaning: {c['meaning']}\n"
+            f"  use when: {c['use_when']}\n  panel roles: {roles}\n  example: {ex}")
+
+
+def ask_meme(post, b, cards):
+    prompt = (
+        "You make memes for an SI research account on X. Readers are devs and SI researchers. "
+        "A good meme maps the post's idea onto the template's KNOWN meaning, so the template does half the joke. "
+        "Each panel text must play the role that panel has in the template. Short: max 8 words a panel, often 2 to 5. "
+        "Concrete nouns (model names, GPUs, evals, prod, the bill) beat abstract words. No emojis. "
+        "Never write AI, write SI (OpenAI and xAI stay).\n\n"
+        f"POST by {post.get('author','')}: {(post.get('text') or '')[:600]}\n"
+        f"OUR QUOTE: {b.get('quote','')}\nCORE: {b.get('core','')}\nDYNAMIC: {b.get('dynamic','')}\nJOKE: {b.get('joke','')}\n\n"
+        "TEMPLATES you may use:\n" + "\n".join(card_full(c) for c in cards) + "\n\n"
+        "Write 3 different drafts on 3 different templates (only ids above). The lines array must have EXACTLY as many items as panels, "
+        "in the same order as the panel roles, because line N is printed on block N of the image. Use an empty string for a block that should stay empty. "
+        'OUTPUT JSON: {"drafts": [{"template": id, "lines": [panel texts], "why": "why the template meaning fits"}]}')
+    r = gemini_json(prompt, 1.1)
+    drafts = (r or {}).get("drafts") if isinstance(r, dict) else None
+    ok = []
+    for d in drafts or []:
+        t = norm_template(d.get("template"))
+        lines = [to_si(str(x or "")).strip() for x in (d.get("lines") or [])]
+        # each line belongs to one block on the image: wrong count means text lands in the wrong block, so drop it
+        if t not in {c["id"] for c in cards} or len(lines) != LINES[t] or not any(lines):
+            log("draft dropped", t, f"{len(lines)} lines for {LINES.get(t)} blocks")
+            continue
+        ok.append({"template": t, "lines": lines, "why": d.get("why", "")})
+    return ok
+
+
+# ---------- stage 3: judge ----------
+def judge(post, b, drafts):
+    """returns drafts sorted best first and the best score"""
+    if len(drafts) < 2:
+        return drafts, (6 if drafts else 0)
+    cards = {c["id"]: c for c in KB}
+    listing = "\n".join(f"{i+1}. {d['template']} ({cards[d['template']]['meaning']}; roles: {cards[d['template']]['roles']}): "
+                        + " | ".join(d["lines"]) for i, d in enumerate(drafts))
+    prompt = ("You are a strict meme page editor for SI devs. Score each meme draft 1 to 10 on: "
+              "fit (does the template's known meaning match the idea, and does each line match its panel role), "
+              "funny (would an SI dev laugh or nod), clear (gets it in 2 seconds without the post). "
+              f"POST: {(post.get('text') or '')[:500]}\nJOKE: {b.get('joke','')}\n\nDRAFTS:\n{listing}\n\n"
+              'OUTPUT JSON: {"scores": [{"n": number, "fit": x, "funny": x, "clear": x}], "best": number}')
+    r = gemini_json(prompt, 0.2)
+    try:
+        sc = {int(x["n"]): (x["fit"] + x["funny"] + x["clear"]) / 3 for x in r["scores"]}
+        order = sorted(range(1, len(drafts) + 1), key=lambda n: -sc.get(n, 0))
+        best = int(r.get("best") or order[0])
+        if best in order:
+            order.remove(best)
+            order.insert(0, best)
+        return [drafts[n - 1] for n in order], sc.get(best, 5)
+    except Exception:
+        return drafts, 6
 
 
 EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F]")
@@ -164,22 +332,25 @@ def fit(lines, n):
     return lines + [" "] * (n - len(lines))
 
 
-def make_meme(template, lines, name):
+def make_meme(ranked, name):
+    """build the best draft; if memegen fails, try the next draft with its own lines (never put lines on another template)"""
     os.makedirs(MEMES, exist_ok=True)
-    for t in [template] + [f for f in FALLBACK if f != template]:
-        n = LINES.get(t, 2)
-        if t != template and n != len([l for l in lines if (l or "").strip()]):
+    path = os.path.join(MEMES, f"{name}.png")
+    for d in ranked[:3]:
+        t, lines = d["template"], d["lines"]
+        if len(lines) != LINES.get(t):
             continue
-        url = f"https://api.memegen.link/images/{t}/" + "/".join(enc(l) for l in fit(lines, n)) + ".png"
-        path = os.path.join(MEMES, f"{name}.png")
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (banzaan-agent)"})
-            with urllib.request.urlopen(req, timeout=60) as r, open(path, "wb") as f:
-                f.write(r.read())
-            if os.path.getsize(path) > 10_000:
-                return path, t
-        except Exception as e:
-            log("meme failed", t, e)
+        url = f"https://api.memegen.link/images/{t}/" + "/".join(enc(l) for l in lines) + ".png"
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (banzaan-agent)"})
+                with urllib.request.urlopen(req, timeout=60) as r, open(path, "wb") as f:
+                    f.write(r.read())
+                if os.path.getsize(path) > 10_000:
+                    return path, d
+            except Exception as e:
+                log("meme failed", t, attempt, e)
+                time.sleep(3)
     return None, None
 
 
@@ -221,18 +392,33 @@ def run_once():
     log(f"popped {len(items)}, after filter {len(posts)}")
     if not posts:
         return
-    results = ask_gemini(posts)
+    by_url = {p["url"]: p for p in posts}
+    results = []
+    for i in range(0, len(posts), max(1, BATCH)):
+        results += ask_quotes(posts[i:i + BATCH])
     if not results:
         log("no quotes from Gemini; posts dropped this round")
-    by_url = {p["url"]: p for p in posts}
+    banned = set(recent_memes())
     sent = 0
-    for b in results if isinstance(results, list) else []:
-        if b.get("url") not in by_url:
+    for b in results:
+        if not isinstance(b, dict) or b.get("url") not in by_url:
             continue
+        post = by_url[b["url"]]
         quote = clean(b.get("quote"))
-        lines = [to_si(l) for l in (b.get("lines") or [])]
         name = b["url"].rstrip("/").split("/")[-1]
-        meme, t = make_meme(b.get("template", "drake"), lines, name)
+        idea = f"{b.get('dynamic','')}. {b.get('core','')}. {b.get('joke','')}"
+        cards = candidates(idea, banned)
+        drafts = ask_meme(post, b, cards)
+        ranked, score = judge(post, b, drafts)
+        meme, t, best = None, None, None
+        if ranked and score >= MIN_SCORE:
+            meme, best = make_meme(ranked, name)
+            t = best["template"] if best else None
+            log("meme", t, f"score {score:.1f}", "|", " / ".join(best["lines"]) if best else "build failed")
+        else:
+            log("no meme good enough", f"score {score:.1f}")
+        if t:
+            banned.add(t)
         try:
             send(quote, b["url"], meme)
             sent += 1
@@ -244,7 +430,9 @@ def run_once():
             continue
         with open(HISTORY, "a", encoding="utf-8") as f:
             f.write(json.dumps({"url": b["url"], "quote": quote, "topic": b.get("topic", ""),
-                                "template": t, "at": datetime.now().isoformat(timespec="seconds")},
+                                "template": t, "lines": best["lines"] if (best and t) else None,
+                                "joke": b.get("joke", ""), "score": round(score, 1),
+                                "at": datetime.now().isoformat(timespec="seconds")},
                                ensure_ascii=False) + "\n")
     log(f"sent {sent}/{len(posts)}")
 

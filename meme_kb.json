@@ -1,0 +1,757 @@
+[
+ {
+  "id": "drake",
+  "name": "Drakeposting",
+  "dynamic": "preference",
+  "meaning": "rejecting one thing and happily choosing another",
+  "use_when": "the post shows people should prefer B over A, or a new way beats an old way",
+  "roles": "1 the thing rejected 2 the thing preferred",
+  "example": [
+   "writing tests by hand",
+   "letting the agent write tests and reading them"
+  ]
+ },
+ {
+  "id": "db",
+  "name": "Distracted Boyfriend",
+  "dynamic": "temptation",
+  "meaning": "someone leaves what they have for a shiny new thing",
+  "use_when": "people or companies jump to the new model or tool and ignore the one they already use",
+  "roles": "1 the new shiny thing 2 the person or group 3 the old thing being ignored",
+  "example": [
+   "new open model from China",
+   "devs",
+   "the API they pay for"
+  ]
+ },
+ {
+  "id": "gru",
+  "name": "Gru's Plan",
+  "dynamic": "plan backfires",
+  "meaning": "a plan that looks great until the last step shows the flaw",
+  "use_when": "a strategy or hype plan hides a bad consequence at the end",
+  "roles": "1 step one 2 step two 3 the hidden bad result 4 same bad result again with shock",
+  "example": [
+   "ship SI agent",
+   "let it run in prod",
+   "it deletes the database",
+   "it deletes the database"
+  ]
+ },
+ {
+  "id": "fine",
+  "name": "This is Fine",
+  "dynamic": "denial in chaos",
+  "meaning": "calmly ignoring a disaster around you",
+  "use_when": "people or companies act normal while something is clearly breaking",
+  "roles": "1 the disaster 2 the calm denial line",
+  "example": [
+   "agents silently fail",
+   "this is fine we have logs"
+  ]
+ },
+ {
+  "id": "cmm",
+  "name": "Change My Mind",
+  "dynamic": "bold claim",
+  "meaning": "a confident hot take you dare others to disprove",
+  "use_when": "the quote makes a strong opinion or prediction",
+  "roles": "1 the bold claim",
+  "example": [
+   "most SI benchmarks measure memory not thinking"
+  ]
+ },
+ {
+  "id": "ds",
+  "name": "Daily Struggle",
+  "dynamic": "hard choice",
+  "meaning": "sweating over two buttons that both seem needed",
+  "use_when": "a dilemma between two options with real trade offs",
+  "roles": "1 option one 2 option two 3 who is choosing",
+  "example": [
+   "open weights",
+   "safe release",
+   "SI labs"
+  ]
+ },
+ {
+  "id": "gb",
+  "name": "Galaxy Brain",
+  "dynamic": "escalating ideas",
+  "meaning": "ideas getting more enlightened or more absurd at each step",
+  "use_when": "a progression of approaches, often ironic at the top level",
+  "roles": "1 basic idea 2 smarter 3 smarter still 4 absurd or genius peak",
+  "example": [
+   "use GPT",
+   "fine tune a model",
+   "train your own",
+   "ask the model to train itself"
+  ]
+ },
+ {
+  "id": "stonks",
+  "name": "Stonks",
+  "dynamic": "naive win",
+  "meaning": "celebrating a gain with bad or funny logic",
+  "use_when": "numbers go up for a silly reason, hype metrics, fake growth",
+  "roles": "1 the silly action 2 the word or result that goes up",
+  "example": [
+   "add SI to the product name",
+   "valuation"
+  ]
+ },
+ {
+  "id": "panik-kalm-panik",
+  "name": "Panik Kalm Panik",
+  "dynamic": "twist",
+  "meaning": "panic, relief, then a twist that brings panic back",
+  "use_when": "news that looks scary, then fine, then worse",
+  "roles": "1 scary fact 2 relieving fact 3 the twist",
+  "example": [
+   "model can write exploits",
+   "it is behind a safety filter",
+   "the filter is also a model"
+  ]
+ },
+ {
+  "id": "noidea",
+  "name": "I Have No Idea What I'm Doing",
+  "dynamic": "incompetence",
+  "meaning": "a dog clueless at a human task",
+  "use_when": "someone uses SI or tech with no idea how it works",
+  "roles": "1 the situation 2 the admission",
+  "example": [
+   "me reviewing 5000 lines the agent wrote",
+   "I have no idea what I'm doing"
+  ]
+ },
+ {
+  "id": "rollsafe",
+  "name": "Roll Safe",
+  "dynamic": "bad clever logic",
+  "meaning": "tapping head with a dumb loophole that sounds smart",
+  "use_when": "a shortcut or hack that technically works but misses the point",
+  "roles": "1 the premise 2 the dumb clever conclusion",
+  "example": [
+   "cannot fail a benchmark",
+   "if you train on the benchmark"
+  ]
+ },
+ {
+  "id": "wonka",
+  "name": "Condescending Wonka",
+  "dynamic": "sarcasm",
+  "meaning": "mocking someone's naive belief",
+  "use_when": "someone's claim deserves a sarcastic tell me more",
+  "roles": "1 setup quoting their claim 2 sarcastic jab",
+  "example": [
+   "oh your startup is an SI wrapper",
+   "tell me again about your moat"
+  ]
+ },
+ {
+  "id": "spiderman",
+  "name": "Spider-Man Pointing",
+  "dynamic": "same thing blame",
+  "meaning": "two identical things accusing each other",
+  "use_when": "two labs or tools that are basically the same blame or copy each other",
+  "roles": "1 first party 2 second party",
+  "example": [
+   "lab A",
+   "lab B"
+  ]
+ },
+ {
+  "id": "pigeon",
+  "name": "Is This a Pigeon?",
+  "dynamic": "misidentification",
+  "meaning": "calling something by the wrong name",
+  "use_when": "people label something as SI or AGI that is not",
+  "roles": "1 the person 2 the thing 3 the wrong label question",
+  "example": [
+   "marketing team",
+   "an if statement",
+   "is this SI"
+  ]
+ },
+ {
+  "id": "woman-cat",
+  "name": "Woman Yelling at a Cat",
+  "dynamic": "argument",
+  "meaning": "an angry accusation and a calm smug reply",
+  "use_when": "a heated debate where one side is unbothered",
+  "roles": "1 angry claim 2 smug reply",
+  "example": [
+   "you said AGI by 2025",
+   "I said the vibes were AGI"
+  ]
+ },
+ {
+  "id": "handshake",
+  "name": "Epic Handshake",
+  "dynamic": "common ground",
+  "meaning": "two different groups agreeing on one thing",
+  "use_when": "rivals or opposites share a goal or belief",
+  "roles": "1 group one 2 group two 3 the shared thing",
+  "example": [
+   "OpenAI",
+   "Google",
+   "raising prices"
+  ]
+ },
+ {
+  "id": "midwit",
+  "name": "Midwit",
+  "dynamic": "bell curve",
+  "meaning": "simple people and geniuses agree, the middle overthinks",
+  "use_when": "the simple answer is right and the complex crowd overcomplicates",
+  "roles": "1 dumb end take 2 midwit long take 3 genius end same simple take",
+  "example": [
+   "just use a bigger model",
+   "need RAG agents graphs and five vector DBs",
+   "just use a bigger model"
+  ]
+ },
+ {
+  "id": "buzz",
+  "name": "X, X Everywhere",
+  "dynamic": "flood",
+  "meaning": "a thing showing up everywhere",
+  "use_when": "a trend is suddenly in every product or feed",
+  "roles": "1 the thing 2 the thing everywhere",
+  "example": [
+   "agents",
+   "agents everywhere"
+  ]
+ },
+ {
+  "id": "both",
+  "name": "Why Not Both?",
+  "dynamic": "refusal to choose",
+  "meaning": "choosing both options",
+  "use_when": "a false dilemma where you can do both",
+  "roles": "1 the choice question 2 why not both",
+  "example": [
+   "open or closed model",
+   "why not both"
+  ]
+ },
+ {
+  "id": "chosen",
+  "name": "You Were the Chosen One",
+  "dynamic": "betrayal",
+  "meaning": "disappointment that a hero turned bad",
+  "use_when": "a company or tool that was supposed to save us now does the opposite",
+  "roles": "1 what it was supposed to do 2 what it did",
+  "example": [
+   "you were supposed to make coding easy",
+   "not make me review code all day"
+  ]
+ },
+ {
+  "id": "disastergirl",
+  "name": "Disaster Girl",
+  "dynamic": "smug cause of chaos",
+  "meaning": "a girl smiling at a fire she caused",
+  "use_when": "someone happy after causing a mess, often SI causing chaos",
+  "roles": "1 the chaos 2 who caused it smiling",
+  "example": [
+   "the prod server is on fire",
+   "the agent with root access"
+  ]
+ },
+ {
+  "id": "harold",
+  "name": "Hide the Pain Harold",
+  "dynamic": "hidden pain",
+  "meaning": "smiling while suffering",
+  "use_when": "a forced smile at a painful situation, like costs or bugs",
+  "roles": "1 the painful situation 2 forced smile line",
+  "example": [
+   "my SI bill this month",
+   "it's fine I love innovation"
+  ]
+ },
+ {
+  "id": "success",
+  "name": "Success Kid",
+  "dynamic": "small win",
+  "meaning": "a tiny victory",
+  "use_when": "a small but real win, ironic or real",
+  "roles": "1 the attempt 2 the win",
+  "example": [
+   "asked the model a question",
+   "it did not hallucinate"
+  ]
+ },
+ {
+  "id": "fry",
+  "name": "Futurama Fry",
+  "dynamic": "suspicion",
+  "meaning": "squinting unsure between two readings",
+  "use_when": "you cannot tell if something is real progress or a trick",
+  "roles": "1 not sure if X 2 or Y",
+  "example": [
+   "not sure if model is smart",
+   "or just saw the test"
+  ]
+ },
+ {
+  "id": "gandalf",
+  "name": "Confused Gandalf",
+  "dynamic": "confusion",
+  "meaning": "old wizard lost and confused",
+  "use_when": "news or a release that makes no sense",
+  "roles": "1 the confusing thing 2 the confused reaction",
+  "example": [
+   "model named o4 mini high pro",
+   "I have no memory of this place"
+  ]
+ },
+ {
+  "id": "morpheus",
+  "name": "Matrix Morpheus",
+  "dynamic": "reveal",
+  "meaning": "what if I told you a hidden truth",
+  "use_when": "the quote reveals a surprising truth that flips a belief",
+  "roles": "1 what if I told you 2 the truth",
+  "example": [
+   "what if I told you",
+   "the model was trained on your tweets"
+  ]
+ },
+ {
+  "id": "doge",
+  "name": "Doge",
+  "dynamic": "wow",
+  "meaning": "playful amazement in broken words",
+  "use_when": "lighthearted excitement about a cool capability",
+  "roles": "1 first words 2 wow words",
+  "example": [
+   "such reasoning",
+   "very tokens wow"
+  ]
+ },
+ {
+  "id": "cheems",
+  "name": "Cheems",
+  "dynamic": "weak vs strong",
+  "meaning": "weak sad dog next to a strong one; jokingly weak",
+  "use_when": "then vs now or strong vs weak comparison in a goofy way",
+  "roles": "1 the weak sad line 2 the follow up",
+  "example": [
+   "me before SI",
+   "much bugs"
+  ]
+ },
+ {
+  "id": "pooh",
+  "name": "Tuxedo Winnie the Pooh",
+  "dynamic": "fancy rename",
+  "meaning": "the same thing said in a classy way",
+  "use_when": "a plain thing rebranded with fancy words",
+  "roles": "1 the plain name 2 the fancy name",
+  "example": [
+   "a for loop",
+   "an agentic workflow"
+  ]
+ },
+ {
+  "id": "exit",
+  "name": "Left Exit 12 Off Ramp",
+  "dynamic": "sudden swerve",
+  "meaning": "a car swerving off to the unexpected choice",
+  "use_when": "someone ignores the obvious path for a weird one",
+  "roles": "1 the sensible path 2 the swerve option 3 who swerves",
+  "example": [
+   "ship a stable product",
+   "add another chatbot",
+   "big tech"
+  ]
+ },
+ {
+  "id": "drowning",
+  "name": "Drowning High Five",
+  "dynamic": "useless solidarity",
+  "meaning": "someone drowning asks for help, and the person who shows up is drowning too and just high fives them",
+  "use_when": "people asking for help only get others saying they have the same problem, nobody actually solves it",
+  "roles": "1 who is drowning and asking for help 2 the other drowning person who shows up 3 what that person says instead of helping",
+  "example": [
+   "dev asking why the agent loops",
+   "another dev on the forum",
+   "same here any fix"
+  ]
+ },
+ {
+  "id": "astronaut",
+  "name": "Always Has Been",
+  "dynamic": "shocking truth",
+  "meaning": "realising something was always true, with a threat",
+  "use_when": "people discover a thing was always the case",
+  "roles": "1 first astronaut realises: wait it's X? 2 second astronaut with gun: always has been 3 label on first astronaut (who realises) 4 label on second astronaut (who knew all along)",
+  "example": [
+   "wait SI is just autocomplete",
+   "always has been",
+   "new users",
+   "researchers"
+  ]
+ },
+ {
+  "id": "right",
+  "name": "Anakin and Padme",
+  "dynamic": "ominous assumption",
+  "meaning": "asking hopefully and getting silence",
+  "use_when": "a naive assumption that might not hold",
+  "roles": "1 label for Anakin (who says the plan) 2 label for Padme (who hopes) 3 Anakin's statement 4 Padme's hopeful question ending in right 5 the same question repeated with fear",
+  "example": [
+   "CEO",
+   "engineers",
+   "we are replacing the team with agents",
+   "so we keep reviewing the code right",
+   "so we keep reviewing the code right"
+  ]
+ },
+ {
+  "id": "reveal",
+  "name": "Scooby Doo Reveal",
+  "dynamic": "unmasking",
+  "meaning": "pulling off a mask to show what is really underneath",
+  "use_when": "a product or claim is really something else",
+  "roles": "1 what it looks like with the mask on 2 Fred: let's see who this really is 3 the real thing under the mask 4 the gang's reaction",
+  "example": [
+   "new SI startup",
+   "let's see who you really are",
+   "GPT wrapper",
+   "knew it"
+  ]
+ },
+ {
+  "id": "mordor",
+  "name": "One Does Not Simply",
+  "dynamic": "hard task",
+  "meaning": "warning that something is harder than it looks",
+  "use_when": "people underestimate a hard problem",
+  "roles": "1 one does not simply 2 the hard task",
+  "example": [
+   "one does not simply",
+   "ship an agent without evals"
+  ]
+ },
+ {
+  "id": "yodawg",
+  "name": "Yo Dawg",
+  "dynamic": "recursion",
+  "meaning": "putting a thing inside the same thing",
+  "use_when": "SI training SI, agents calling agents, recursion",
+  "roles": "1 we heard you like X 2 so we put X in X",
+  "example": [
+   "yo dawg I heard you like models",
+   "so we put a model in your model"
+  ]
+ },
+ {
+  "id": "afraid",
+  "name": "Afraid to Ask Andy",
+  "dynamic": "ashamed ignorance",
+  "meaning": "being afraid to ask a basic question",
+  "use_when": "everyone talks about a term nobody really understands",
+  "roles": "1 the thing 2 and at this point I'm afraid to ask",
+  "example": [
+   "I don't know what MCP is",
+   "and at this point I'm afraid to ask"
+  ]
+ },
+ {
+  "id": "bad",
+  "name": "You Should Feel Bad",
+  "dynamic": "shame",
+  "meaning": "telling someone they should feel bad",
+  "use_when": "someone did something lazy or harmful",
+  "roles": "1 what they did 2 you should feel bad",
+  "example": [
+   "you shipped without tests",
+   "you should feel bad"
+  ]
+ },
+ {
+  "id": "elmo",
+  "name": "Elmo Choosing",
+  "dynamic": "the bad choice",
+  "meaning": "ignoring good options and grabbing the tempting one",
+  "use_when": "people choose the hyped or risky option over solid ones",
+  "roles": "1 the boring good option 2 who chooses (Elmo) 3 the tempting bad option 4 the boring good option again, pushed away 5 the tempting option again, grabbed",
+  "example": [
+   "reading the docs",
+   "devs",
+   "asking the chatbot",
+   "reading the docs",
+   "asking the chatbot"
+  ]
+ },
+ {
+  "id": "kermit",
+  "name": "But That's None of My Business",
+  "dynamic": "passive aggressive",
+  "meaning": "sipping tea after a sneaky remark",
+  "use_when": "a quiet dig at someone's hypocrisy",
+  "roles": "1 the observation 2 but that's none of my business",
+  "example": [
+   "they say safety first and ship weekly",
+   "but that's none of my business"
+  ]
+ },
+ {
+  "id": "michael-scott",
+  "name": "Michael Scott No God No",
+  "dynamic": "dread",
+  "meaning": "a horrified no",
+  "use_when": "a clearly bad news or idea",
+  "roles": "1 the bad news 2 no god no",
+  "example": [
+   "agent got prod access",
+   "no god please no"
+  ]
+ },
+ {
+  "id": "dwight",
+  "name": "Schrute Facts",
+  "dynamic": "correction",
+  "meaning": "pedantic correction of a wrong belief",
+  "use_when": "someone states a wrong fact and the quote corrects it",
+  "roles": "1 the wrong belief 2 false. the correction",
+  "example": [
+   "SI understands everything",
+   "false it predicts tokens"
+  ]
+ },
+ {
+  "id": "officespace",
+  "name": "That Would Be Great",
+  "dynamic": "bossy request",
+  "meaning": "a boss making an annoying polite demand",
+  "use_when": "a company asks for something unreasonable in a nice tone",
+  "roles": "1 yeah if you could X 2 that would be great",
+  "example": [
+   "if you could just label 1M images for free",
+   "that would be great"
+  ]
+ },
+ {
+  "id": "interesting",
+  "name": "The Most Interesting Man",
+  "dynamic": "rare habit",
+  "meaning": "I don't always X but when I do Y",
+  "use_when": "a funny personal habit or rare behavior",
+  "roles": "1 I don't always X 2 but when I do Y",
+  "example": [
+   "I don't always test code",
+   "but when I do it's in prod"
+  ]
+ },
+ {
+  "id": "leo",
+  "name": "Leo Strutting",
+  "dynamic": "confidence",
+  "meaning": "strutting proudly",
+  "use_when": "someone proud after a small or big win",
+  "roles": "1 the situation 2 the proud strut",
+  "example": [
+   "me after the agent passes one test",
+   "shipping to prod"
+  ]
+ },
+ {
+  "id": "jw",
+  "name": "Probably Not a Good Idea",
+  "dynamic": "warning",
+  "meaning": "a warning that something is a bad idea",
+  "use_when": "a risky plan someone is excited about",
+  "roles": "1 the plan 2 probably not a good idea",
+  "example": [
+   "giving the agent your credit card",
+   "probably not a good idea"
+  ]
+ },
+ {
+  "id": "same",
+  "name": "They're the Same Picture",
+  "dynamic": "no difference",
+  "meaning": "corporate needs you to find the difference but they are the same",
+  "use_when": "two things marketed as different are the same",
+  "roles": "1 thing A on the left paper 2 thing B on the right paper 3 label on Pam: who says they are the same (the caption 'they're the same picture' is already printed on the image)",
+  "example": [
+   "new model",
+   "last model renamed",
+   "the benchmark"
+  ]
+ },
+ {
+  "id": "box",
+  "name": "What's in the Box",
+  "dynamic": "fearful curiosity",
+  "meaning": "desperately asking what is inside",
+  "use_when": "a mysterious release or black box model",
+  "roles": "1 what's in the training data 2 what's in the box",
+  "example": [
+   "what is in the training data",
+   "what's in the box"
+  ]
+ },
+ {
+  "id": "older",
+  "name": "An Older Code But It Checks Out",
+  "dynamic": "old works",
+  "meaning": "an old thing that still works",
+  "use_when": "old methods or code still beat the new hype",
+  "roles": "1 an older X sir 2 but it checks out",
+  "example": [
+   "a regex from 2009 sir",
+   "but it checks out"
+  ]
+ },
+ {
+  "id": "sadfrog",
+  "name": "Feels Bad Man",
+  "dynamic": "sadness",
+  "meaning": "a sad frog",
+  "use_when": "a small sad truth",
+  "roles": "1 the sad thing 2 feels bad man",
+  "example": [
+   "model got deprecated the day I finished",
+   "feels bad man"
+  ]
+ },
+ {
+  "id": "facepalm",
+  "name": "Facepalm",
+  "dynamic": "embarrassment",
+  "meaning": "a facepalm at something dumb",
+  "use_when": "an obvious mistake or silly news",
+  "roles": "1 the dumb thing 2 the reaction",
+  "example": [
+   "asked SI to count letters",
+   "it said two"
+  ]
+ },
+ {
+  "id": "grave",
+  "name": "Grant Gustin at the Grave",
+  "dynamic": "replaced and happy about it",
+  "meaning": "smiling next to the grave of something that died, often the thing that killed it",
+  "use_when": "a tool, model, job or trend died or got replaced and the replacement is doing fine",
+  "roles": "1 text on the gravestone: the thing that died 2 small text on the grave dirt, can be empty 3 label on the smiling man: the replacement or the killer",
+  "example": [
+   "prompt engineering",
+   "",
+   "agents"
+  ]
+ },
+ {
+  "id": "headaches",
+  "name": "Types of Headaches",
+  "dynamic": "worst pain",
+  "meaning": "a list of headache types with one worst",
+  "use_when": "one problem that hurts the most",
+  "roles": "1 the worst headache",
+  "example": [
+   "debugging agent loops"
+  ]
+ },
+ {
+  "id": "balloon",
+  "name": "Running Away Balloon",
+  "dynamic": "blocked goal",
+  "meaning": "someone held back from reaching what they want",
+  "use_when": "a goal blocked by a pulling force",
+  "roles": "1 the goal on the balloon in panel one 2 the same goal on the balloon floating away 3 the thing pulling the person back",
+  "example": [
+   "AGI",
+   "AGI",
+   "compute bill"
+  ]
+ },
+ {
+  "id": "philosoraptor",
+  "name": "Philosoraptor",
+  "dynamic": "deep question",
+  "meaning": "a dinosaur pondering a silly deep question",
+  "use_when": "a philosophical or ironic question about SI",
+  "roles": "1 setup 2 the question",
+  "example": [
+   "if the model learns from us",
+   "are we the training data"
+  ]
+ },
+ {
+  "id": "slap",
+  "name": "Will Smith Slap",
+  "dynamic": "hard correction",
+  "meaning": "a slap answering a joke",
+  "use_when": "someone shuts down a wrong or annoying take",
+  "roles": "1 the take 2 the slap reply",
+  "example": [
+   "SI will replace devs next week",
+   "show me it fixing one bug"
+  ]
+ },
+ {
+  "id": "tenguy",
+  "name": "10 Guy",
+  "dynamic": "stoned realization",
+  "meaning": "a dazed person with an odd realization",
+  "use_when": "a weird half joke realization",
+  "roles": "1 setup 2 the realization",
+  "example": [
+   "what if",
+   "our prompts are the real code"
+  ]
+ },
+ {
+  "id": "seagull",
+  "name": "Inhaling Seagull",
+  "dynamic": "building rage",
+  "meaning": "a seagull screaming louder and louder",
+  "use_when": "frustration that grows",
+  "roles": "1 calm start 2 the scream",
+  "example": [
+   "me reading another AGI is here post",
+   "AAAA"
+  ]
+ },
+ {
+  "id": "khaby-lame",
+  "name": "Khaby Lame Shrug",
+  "dynamic": "obvious solution",
+  "meaning": "showing the simple obvious way after a complex one",
+  "use_when": "people overcomplicate, a simple fix exists",
+  "roles": "1 the complex way 2 the simple way",
+  "example": [
+   "build a 12 agent pipeline",
+   "just read the docs"
+  ]
+ },
+ {
+  "id": "ants",
+  "name": "Do You Want Ants",
+  "dynamic": "consequences",
+  "meaning": "this is how you get bad consequences",
+  "use_when": "a warning that a habit leads to trouble",
+  "roles": "1 the bad habit 2 do you want ants? because that's how you get ants",
+  "example": [
+   "skipping evals",
+   "because that's how you get ants"
+  ]
+ },
+ {
+  "id": "scc",
+  "name": "Sudden Clarity Clarence",
+  "dynamic": "epiphany",
+  "meaning": "a sudden realization",
+  "use_when": "a clear insight that changes how you see something",
+  "roles": "1 the setup 2 the realization",
+  "example": [
+   "if SI writes the code",
+   "who understands the code"
+  ]
+ }
+]
